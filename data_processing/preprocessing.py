@@ -150,7 +150,7 @@ def main():
 
     merged = pd.concat(frames, ignore_index=True)
 
-    # 요구사항: 중복은 “같은 파일 내에서만” 제거했으므로
+    # 중복은 같은 파일 내에서만 제거했으므로
     # 여기서는 교차 파일 중복 제거를 하지 않습니다.
     # (교차 파일 중복도 제거하려면 아래 주석 해제)
     # merged = merged.drop_duplicates(subset=["Comment"], keep="first")

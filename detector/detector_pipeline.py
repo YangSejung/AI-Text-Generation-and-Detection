@@ -28,7 +28,7 @@ TRAIN_RATIO = 0.7          # 제품 단위 7:3 분할
 BALANCE_MAX_EACH = None    # (선택) 클래스 균형 맞춤 상한 (예: 1000). None이면 자동 최소치.
 
 # 경량 한국어 특화 모델
-MODEL_NAME = "klue/roberta-small"      # 대안: "beomi/KcELECTRA-base"
+MODEL_NAME = "klue/roberta-small"     
 MAX_LEN    = 192
 NUM_LABELS = 2
 EPOCHS     = 4
@@ -126,7 +126,7 @@ def main():
         hwc["IsLGC"] = False
     if "ModelUsed" not in hwc.columns:
         hwc["ModelUsed"] = "HUMAN"
-    # LGC 라벨 보정(문자열 → bool)
+    # LGC 라벨 보정(문자열 -> bool)
     if lgc["IsLGC"].dtype != bool:
         lgc["IsLGC"] = lgc["IsLGC"].astype(str).str.lower().isin(["true","1","t","y","yes"])
 
@@ -138,13 +138,13 @@ def main():
     print(f"[SPLIT] products total={len(prod_train|prod_test)} train={len(prod_train)} test={len(prod_test)}")
     print(f"  HWC train={len(hwc_train)}, test={len(hwc_test)} | LGC train={len(lgc_train)}, test={len(lgc_test)}")
 
-    # ---- 3) (선택) 클래스 균형 맞추고 train/test 결합
+    # ---- 3) 클래스 균형 맞추고 train/test 결합
     lgc_train_b, hwc_train_b = balance_pos_neg(lgc_train, hwc_train, BALANCE_MAX_EACH, SEED)
     lgc_test_b,  hwc_test_b  = balance_pos_neg(lgc_test,  hwc_test,  BALANCE_MAX_EACH, SEED)
     train_df = pd.concat([lgc_train_b, hwc_train_b], ignore_index=True).sample(frac=1.0, random_state=SEED).reset_index(drop=True)
     test_df  = pd.concat([lgc_test_b,  hwc_test_b],  ignore_index=True).sample(frac=1.0,  random_state=SEED).reset_index(drop=True)
 
-    # (원하면 저장)
+    # 저장
     train_df.to_csv(OUT_TRAIN, index=False, encoding="utf-8")
     test_df.to_csv(OUT_TEST, index=False, encoding="utf-8")
     print(f"[SAVE] train={OUT_TRAIN} ({len(train_df)} rows) | test={OUT_TEST} ({len(test_df)} rows)")
@@ -212,7 +212,7 @@ def main():
     # 오분류 Top 샘플 (최대 30개)
     wrong_idx = np.where(pred_labels != true_labels)[0][:30]
     err_dump = test_df.iloc[wrong_idx][["Product","Category","Score","ModelUsed","Comment","IsLGC"]].copy()
-    err_dump.to_csv(os.path.join(OUT_DIR, "misclassified_samples.csv"), index=False, encoding="utf-8-sig")
+    err_dump.to_csv(os.path.join(OUT_DIR, "misclassified_samples.csv"), index=False, encoding="utf-8")
     print(f"[DUMP] misclassified -> {os.path.join(OUT_DIR, 'misclassified_samples.csv')} (rows={len(err_dump)})")
 
     # 슬라이스 리포트
